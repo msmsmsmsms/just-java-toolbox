@@ -1,2 +1,2 @@
 include 'just-toolbox'
-include 'just-testtoolbox'
+include 'just-test-toolbox'
