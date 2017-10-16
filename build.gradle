@@ -1,9 +1,9 @@
-//def stdout = new ByteArrayOutputStream()
-//exec {
-//    commandLine 'git', 'describe', '--dirty'
-//    standardOutput = stdout
-//}
-//version = stdout.toString().trim()
+def stdout = new ByteArrayOutputStream()
+exec {
+    commandLine 'git', 'describe', '--dirty'
+    standardOutput = stdout
+}
+version = stdout.toString().trim()
 
 allprojects {
     repositories {
