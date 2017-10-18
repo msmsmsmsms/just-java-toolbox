@@ -4,7 +4,7 @@ common java tools and utilities missing in other tool libraries
 
 # Usage
 
-when you have uploaded artifacts in your repository (see [Release](#release) if not yet done) you can use them in gradle by adding
+when you have uploaded artifacts in your repository (see [snapshot and releases](#snapshot-and-releases) if not yet done) you can use them in gradle by adding
 
     dependencies {
         compile 'de.justsoftware.toolbox:just-java-toolbox:+'
@@ -14,6 +14,7 @@ when you have uploaded artifacts in your repository (see [Release](#release) if 
 consider replacing + by an explicit version number
 
 # Creating and Uploading Artifacts
+
 ## local maven
 Checkout a Commit and call
 
@@ -31,12 +32,15 @@ Checkout a Commit and call
 
     ./gradlew clean uploadArchives
 
-# Release
+Beware, if you check out a commit which is an annotated tag, you will build and upload a release and not a snapshot (see [Release](#release))!
 
-This project uses the jgitver gradle plugin. This creates the artifact version from git tags.
+## Release
+This project uses the jgitver gradle plugin. This creates the artifact version from annotated git tags.
 To release you have to
-- create an annotated tag
+- create an annotated tag on the master branch
 
+      git fetch origin
+      git checkout origin/master
       git tag -a X.Y.Z
 
   where X.Y.Z is the version number to be released
@@ -44,7 +48,11 @@ To release you have to
 
       git push --tags origin master
 
-You can also do this by draft a release through https://github.com/justsocialapps/just-java-toolbox/releases
+- build the artifacts and upload the artifacts
+
+      ./gradlew clean uploadArchives
+
+Edit the release informations at https://github.com/justsocialapps/just-java-toolbox/releases and upload the jars and source jars to it.
 
 # License
 
