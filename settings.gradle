@@ -1,2 +1,2 @@
-include 'just-toolbox'
-include 'just-test-toolbox'
+include 'just-java-toolbox'
+include 'just-java-test-toolbox'
