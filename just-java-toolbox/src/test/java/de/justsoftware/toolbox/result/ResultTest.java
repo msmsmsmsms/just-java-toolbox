@@ -102,6 +102,16 @@ public class ResultTest {
     }
 
     @Test
+    public void testMapErr() {
+        assertEquals(
+                Result.<Integer, Exception>ok(1).mapErr(Exception::getMessage),
+                Result.ok(1));
+        assertEquals(
+                Result.<Integer, Exception>err(EXCEPTION1).mapErr(Exception::getMessage),
+                Result.err("exception1"));
+    }
+
+    @Test
     public void testAnd() {
         assertEquals(
                 Result.ok(1).and(Result.ok("x")),

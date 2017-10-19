@@ -111,6 +111,13 @@ public abstract class Result<V, E> {
     public abstract <U> Result<U, E> map(Function<? super V, ? extends U> mapper);
 
     /**
+     * If the Result is an error, apply the provided mapping function to it. If the Result is ok, it is returned
+     * unchanged.
+     */
+    @Nonnull
+    public abstract <E2> Result<V, E2> mapErr(Function<? super E, ? extends E2> mapper);
+
+    /**
      * If the Result is ok, return the parameter. If the Result is an error, it is returned unchanged.
      */
     @Nonnull
@@ -196,6 +203,11 @@ public abstract class Result<V, E> {
         }
 
         @Override
+        public <E2> Result<V, E2> mapErr(Function<? super E, ? extends E2> mapper) {
+            return (Result<V, E2>) this;
+        }
+
+        @Override
         public <U> Result<U, E> and(Result<U, E> result) {
             return result;
         }
@@ -261,7 +273,6 @@ public abstract class Result<V, E> {
             consumer.accept(_err);
         }
 
-        @Nonnull
         @Override
         public <T> T accept(Function<? super V, ? extends T> ifOk, Function<? super E, ? extends T> ifErr) {
             return ifErr.apply(_err);
@@ -280,6 +291,11 @@ public abstract class Result<V, E> {
         @Override
         public <U> Result<U, E> map(Function<? super V, ? extends U> mapper) {
             return (Result<U, E>) this;
+        }
+
+        @Override
+        public <E2> Result<V, E2> mapErr(Function<? super E, ? extends E2> mapper) {
+            return new Err(mapper.apply(_err));
         }
 
         @Override
