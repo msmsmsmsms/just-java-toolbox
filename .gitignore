@@ -1,10 +1,13 @@
 bin/
 tmp/
 .settings/
-.idea/
 *.iml
 .checkstyle
 .classpath
 .project
 build/
 .gradle/
+
+# IntelliJ
+.idea/
+*/out
