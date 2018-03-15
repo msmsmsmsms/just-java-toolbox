@@ -1,0 +1,8 @@
+description 'Just Java Test Toolbox - common java test tools and utilities missing in other tool libraries'
+
+dependencies {
+    compile ('org.mybatis:mybatis:3.4.6')
+    compile project(':just-java-toolbox')
+
+    testCompile project(':just-java-test-toolbox')
+}

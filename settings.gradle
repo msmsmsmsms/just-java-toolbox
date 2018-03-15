@@ -1,2 +1,3 @@
 include 'just-java-toolbox'
 include 'just-java-test-toolbox'
+include 'just-mybatis-toolbox'
