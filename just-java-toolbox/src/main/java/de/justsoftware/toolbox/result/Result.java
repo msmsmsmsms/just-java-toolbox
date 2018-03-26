@@ -28,7 +28,7 @@ public abstract class Result<V, E> {
      */
     @Nonnull
     public static <V, E> Result<V, E> ok(V v) {
-        return new Ok(v);
+        return new Ok<>(v);
     }
 
     /**
@@ -36,7 +36,7 @@ public abstract class Result<V, E> {
      */
     @Nonnull
     public static <V, E> Result<V, E> err(E e) {
-        return new Err(e);
+        return new Err<>(e);
     }
 
     /**
@@ -48,7 +48,9 @@ public abstract class Result<V, E> {
         try {
             return Result.ok(supplier.get());
         } catch (Throwable e) {
-            return Result.err((E)e);
+            @SuppressWarnings("unchecked")
+            final E casted = (E)e;
+            return err(casted);
         }
     }
 
@@ -72,7 +74,7 @@ public abstract class Result<V, E> {
     /**
      * When this Result is ok, its wrapped value is passed to the consumer.
      */
-    public abstract void ifOk(Consumer<V> consumer);
+    public abstract void ifOk(Consumer<? super V> consumer);
 
     /**
      * Returns true if this Result is an error.
@@ -82,7 +84,7 @@ public abstract class Result<V, E> {
     /**
      * When this Result is an error, its wrapped exception is passed to the consumer.
      */
-    public abstract void ifErr(Consumer<E> consumer);
+    public abstract void ifErr(Consumer<? super E> consumer);
 
     /**
      * Call ifOk when the Result is ok, or ifErr when the Result is an error.
@@ -141,6 +143,11 @@ public abstract class Result<V, E> {
     @Nonnull
     public abstract <U, E2> Result<U, E2> orElse(Function<? super E, Result<U, E2>> mapper);
 
+    @SuppressWarnings("unchecked")
+    @Nonnull
+    protected <U2,E2> Result<U2,E2> cast() {
+        return (Result<U2,E2>) this;
+    }
 
     /**
      * A Supplier which may throw exceptions.
@@ -168,7 +175,7 @@ public abstract class Result<V, E> {
         }
 
         @Override
-        public void ifOk(Consumer<V> consumer) {
+        public void ifOk(Consumer<? super V> consumer) {
             consumer.accept(_value);
         }
 
@@ -178,10 +185,9 @@ public abstract class Result<V, E> {
         }
 
         @Override
-        public void ifErr(Consumer<E> consumer) {
+        public void ifErr(Consumer<? super E> consumer) {
         }
 
-        @Nonnull
         @Override
         public <T> T accept(Function<? super V, ? extends T> ifOk, Function<? super E, ? extends T> ifErr) {
             return ifOk.apply(_value);
@@ -199,12 +205,12 @@ public abstract class Result<V, E> {
 
         @Override
         public <U> Result<U, E> map(Function<? super V, ? extends U> mapper) {
-            return new Ok(mapper.apply(_value));
+            return ok(mapper.apply(_value));
         }
 
         @Override
         public <E2> Result<V, E2> mapErr(Function<? super E, ? extends E2> mapper) {
-            return (Result<V, E2>) this;
+            return cast();
         }
 
         @Override
@@ -219,12 +225,12 @@ public abstract class Result<V, E> {
 
         @Override
         public <U> Result<U, E> or(Result<U, E> result) {
-            return (Result<U, E>) this;
+            return cast();
         }
 
         @Override
         public <U, E2> Result<U, E2> orElse(Function<? super E, Result<U, E2>> mapper) {
-            return (Result<U, E2>) this;
+            return cast();
         }
 
         @Override
@@ -235,7 +241,7 @@ public abstract class Result<V, E> {
         @Override
         public boolean equals(Object o) {
             return o instanceof Ok
-                && Objects.equals(((Ok)o)._value, _value);
+                && Objects.equals(((Ok<?,?>)o)._value, _value);
         }
 
         @Override
@@ -260,7 +266,7 @@ public abstract class Result<V, E> {
         }
 
         @Override
-        public void ifOk(Consumer<V> consumer) {
+        public void ifOk(Consumer<? super V> consumer) {
         }
 
         @Override
@@ -269,7 +275,7 @@ public abstract class Result<V, E> {
         }
 
         @Override
-        public void ifErr(Consumer<E> consumer) {
+        public void ifErr(Consumer<? super E> consumer) {
             consumer.accept(_err);
         }
 
@@ -290,22 +296,22 @@ public abstract class Result<V, E> {
 
         @Override
         public <U> Result<U, E> map(Function<? super V, ? extends U> mapper) {
-            return (Result<U, E>) this;
+            return cast();
         }
 
         @Override
         public <E2> Result<V, E2> mapErr(Function<? super E, ? extends E2> mapper) {
-            return new Err(mapper.apply(_err));
+            return err(mapper.apply(_err));
         }
 
         @Override
         public <U> Result<U, E> and(Result<U, E> result) {
-            return (Result<U, E>) this;
+            return cast();
         }
 
         @Override
         public <U, E2> Result<U, E2> andThen(Function<? super V, Result<U, E2>> mapper) {
-            return (Result<U, E2>) this;
+            return cast();
         }
 
         @Override
@@ -326,7 +332,7 @@ public abstract class Result<V, E> {
         @Override
         public boolean equals(Object o) {
             return o instanceof Err
-                    && Objects.equals(((Err)o)._err, _err);
+                    && Objects.equals(((Err<?,?>)o)._err, _err);
         }
 
         @Override

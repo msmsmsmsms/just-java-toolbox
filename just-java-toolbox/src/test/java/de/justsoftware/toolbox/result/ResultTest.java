@@ -41,11 +41,13 @@ public class ResultTest {
 
     @Test
     public void testIfOk() {
-        Consumer fOk = Mockito.mock(Consumer.class);
-        Consumer fErr = Mockito.mock(Consumer.class);
+        @SuppressWarnings("unchecked")
+        Consumer<String> fOk = Mockito.mock(Consumer.class);
+        @SuppressWarnings("unchecked")
+        Consumer<String> fErr = Mockito.mock(Consumer.class);
 
         Result.ok("x").ifOk(fOk);
-        Result.err(EXCEPTION1).ifOk(fErr);
+        Result.<String, Exception>err(EXCEPTION1).ifOk(fErr);
 
         Mockito.verify(fOk).accept("x");
         Mockito.verifyNoMoreInteractions(fErr);
@@ -59,10 +61,12 @@ public class ResultTest {
 
     @Test
     public void testIfErr() {
-        Consumer fOk = Mockito.mock(Consumer.class);
-        Consumer fErr = Mockito.mock(Consumer.class);
+        @SuppressWarnings("unchecked")
+        Consumer<Exception> fOk = Mockito.mock(Consumer.class);
+        @SuppressWarnings("unchecked")
+        Consumer<Exception> fErr = Mockito.mock(Consumer.class);
 
-        Result.ok("x").ifErr(fOk);
+        Result.<String, Exception>ok("x").ifErr(fOk);
         Result.err(EXCEPTION1).ifErr(fErr);
 
         Mockito.verifyNoMoreInteractions(fOk);
