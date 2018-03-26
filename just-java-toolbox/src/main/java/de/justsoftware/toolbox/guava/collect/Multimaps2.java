@@ -3,17 +3,19 @@ package de.justsoftware.toolbox.guava.collect;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMultimap.Builder;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Streams;
 
 /**
  * methods which are missing in {@link com.google.common.collect.Multimaps}
@@ -28,74 +30,79 @@ public final class Multimaps2 {
     }
 
     /**
-     * same as {@link com.google.common.collect.Multimaps#index(Iterable, Function)} but returning a
+     * same as {@link com.google.common.collect.Multimaps#index} but returning a
      * {@link ImmutableSetMultimap}.
+     * 
+     * @deprecated consider using the stream api directly
      */
     @Nonnull
+    @Deprecated
     public static <K, V> ImmutableSetMultimap<K, V> indexSetMultimap(final Iterable<? extends V> values,
             final Function<? super V, K> keyFunction) {
-        return indexSetMultimap(values.iterator(), keyFunction);
+        return Streams.stream(values).collect(ImmutableSetMultimap.toImmutableSetMultimap(keyFunction, Function.identity()));
     }
 
     /**
-     * same as {@link com.google.common.collect.Multimaps#index(Iterable, Function)} but returning a
+     * same as {@link com.google.common.collect.Multimaps#index} but returning a
      * {@link ImmutableSetMultimap} and applying function also to value.
+     * 
+     * @deprecated consider using the stream api directly
      */
     @Nonnull
+    @Deprecated
     public static <K, V, O> ImmutableSetMultimap<K, V> indexSetMultimap(final Iterable<? extends O> values,
             final Function<? super O, K> keyFunction, final Function<? super O, V> valueFunction) {
-        return indexSetMultimap(values.iterator(), keyFunction, valueFunction);
+        return Streams.stream(values).collect(ImmutableSetMultimap.toImmutableSetMultimap(keyFunction, valueFunction));
     }
 
     /**
-     * same as {@link com.google.common.collect.Multimaps#index(Iterator, Function)} but returning a
+     * same as {@link com.google.common.collect.Multimaps#index} but returning a
      * {@link ImmutableSetMultimap}.
+     * 
+     * @deprecated consider using the stream api directly
      */
     @Nonnull
+    @Deprecated
     public static <K, V> ImmutableSetMultimap<K, V> indexSetMultimap(final Iterator<? extends V> values,
             final Function<? super V, K> keyFunction) {
-        return indexSetMultimap(values, keyFunction, Functions.<V>identity());
+        return Streams.stream(values).collect(ImmutableSetMultimap.toImmutableSetMultimap(keyFunction, Function.identity()));
     }
 
     /**
-     * same as {@link com.google.common.collect.Multimaps#index(Iterator, Function)} but returning a
+     * same as {@link com.google.common.collect.Multimaps#index} but returning a
      * {@link ImmutableSetMultimap} and applying function also to value.
+     * 
+     * @deprecated consider using the stream api directly
      */
     @Nonnull
+    @Deprecated
     public static <K, V, O> ImmutableSetMultimap<K, V> indexSetMultimap(final Iterator<? extends O> values,
             final Function<? super O, K> keyFunction, final Function<? super O, V> valueFunction) {
-        return indexMultimap(values, keyFunction, valueFunction, ImmutableSetMultimap.<K, V>builder()).build();
+        return Streams.stream(values).collect(ImmutableSetMultimap.toImmutableSetMultimap(keyFunction, valueFunction));
     }
 
     /**
-     * same as {@link com.google.common.collect.Multimaps#index(Iterable, Function)} but applying function also to value.
+     * same as {@link com.google.common.collect.Multimaps#index} but applying function also to value.
+     * 
+     * @deprecated consider using the stream api directly
      */
     @Nonnull
+    @Deprecated
     public static <K, V, O> ImmutableListMultimap<K, V> indexListMultimap(final Iterable<? extends O> values,
             final Function<? super O, K> keyFunction, final Function<? super O, V> valueFunction) {
-        return indexListMultimap(values.iterator(), keyFunction, valueFunction);
+        return Streams.stream(values).collect(ImmutableListMultimap.toImmutableListMultimap(keyFunction, valueFunction));
     }
 
     /**
-     * same as {@link com.google.common.collect.Multimaps#index(Iterator, Function)} but applying function also to value.
+     * same as {@link com.google.common.collect.Multimaps#index} but applying function also to value.
+     * 
+     * @deprecated consider using the stream api directly
      */
     @Nonnull
+    @Deprecated
     public static <K, V, O> ImmutableListMultimap<K, V> indexListMultimap(final Iterator<? extends O> values,
             final Function<? super O, K> keyFunction, final Function<? super O, V> valueFunction) {
-        return indexMultimap(values, keyFunction, valueFunction, ImmutableListMultimap.<K, V>builder()).build();
-    }
-
-    @Nonnull
-    private static <O, K, V, B extends Builder<K, V>> B indexMultimap(final Iterator<? extends O> values,
-            final Function<? super O, K> keyFunction, final Function<? super O, V> valueFunction, final B builder) {
-        Preconditions.checkNotNull(keyFunction);
-        Preconditions.checkNotNull(valueFunction);
-        while (values.hasNext()) {
-            final O value = values.next();
-            Preconditions.checkNotNull(value);
-            builder.put(keyFunction.apply(value), valueFunction.apply(value));
-        }
-        return builder;
+        return Streams.stream(values).collect(ImmutableListMultimap.toImmutableListMultimap(keyFunction, valueFunction));
     }
 
     /**
@@ -104,16 +111,37 @@ public final class Multimaps2 {
     @Nonnull
     public static <K, V> ImmutableSetMultimap<K, V> cartesianProduct(final Set<? extends K> keys,
             final Set<? extends V> values) {
-        final ImmutableSetMultimap.Builder<K, V> result = ImmutableSetMultimap.builder();
-        keys.forEach(k -> result.putAll(k, values));
-        return result.build();
+        return keys
+                .stream()
+                .collect(ImmutableSetMultimap.flatteningToImmutableSetMultimap(Function.identity(), i -> values.stream()));
     }
 
     /**
-     * a workaround the missing {@link java.util.Map#forEach} method in {@link Multimap}s
+     * @deprecated this was a workaround for the missing {@link java.util.Map#forEach} method in {@link Multimap}s
      */
+    @Deprecated
     public static <K, V> void forEach(final Multimap<? extends K, ? extends V> map, final BiConsumer<K, V> consumer) {
-        map.entries().forEach(e -> consumer.accept(e.getKey(), e.getValue()));
+        map.forEach(consumer);
+    }
+
+    /**
+     * Like {@link Multimaps#filterEntries(SetMultimap, com.google.common.base.Predicate)} but accepts a {@link BiPredicate}
+     * which is much more readable.
+     */
+    @Nonnull
+    public static <K, V> SetMultimap<K, V> filterEntries(final SetMultimap<K, V> map, final BiPredicate<K, V> predicate) {
+        Preconditions.checkNotNull(predicate);
+        return Multimaps.filterEntries(map, e -> predicate.test(e.getKey(), e.getValue()));
+    }
+
+    /**
+     * Like {@link Multimaps#filterEntries(Multimap, com.google.common.base.Predicate)} but accepts a {@link BiPredicate}
+     * which is much more readable.
+     */
+    @Nonnull
+    public static <K, V> Multimap<K, V> filterEntries(final Multimap<K, V> map, final BiPredicate<K, V> predicate) {
+        Preconditions.checkNotNull(predicate);
+        return Multimaps.filterEntries(map, e -> predicate.test(e.getKey(), e.getValue()));
     }
 
 }
