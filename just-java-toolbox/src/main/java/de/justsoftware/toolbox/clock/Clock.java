@@ -1,10 +1,14 @@
 package de.justsoftware.toolbox.clock;
 
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.ReadableDuration;
 
 /**
  * Interface for providing the current time to the application.
@@ -12,18 +16,28 @@ import org.joda.time.DateTimeZone;
  * 
  * @author Christian Ewers <christian.ewers@juststoftwareag.com> (initial creation)
  */
-public abstract class Clock {
+@FunctionalInterface
+@ParametersAreNonnullByDefault
+public interface Clock {
 
     /**
      * Returns the current system time.
      */
     @Nonnull
-    public abstract DateTime now();
+    DateTime now();
+
+    /**
+     * Returns the current system time as {@link Date}
+     */
+    @Nonnull
+    default Date nowDate() {
+        return now().toDate();
+    }
 
     /**
      * Returns the current millis
      */
-    public long nowMillis() {
+    default long nowMillis() {
         return now().getMillis();
     }
 
@@ -32,8 +46,8 @@ public abstract class Clock {
      * time-zone.
      */
     @Nonnull
-    public static Clock systemDefaultZone() {
-        return new SystemClock(DateTimeZone.getDefault());
+    static Clock systemDefaultZone() {
+        return forTimezone(DateTimeZone.getDefault());
     }
 
     /**
@@ -41,29 +55,48 @@ public abstract class Clock {
      * using the UTC time-zone.
      */
     @Nonnull
-    public static Clock systemUTC() {
-        return new SystemClock(DateTimeZone.UTC);
+    static Clock systemUTC() {
+        return forTimezone(DateTimeZone.UTC);
     }
 
     /**
-     * Implementation representing the actual system time.
-     * Should be used in production.
-     * 
-     * @author Christian Ewers <christian.ewers@juststoftwareag.com> (initial creation)
+     * Obtains a clock that returns the current instant using the system clock, but with a specific timezone.
      */
-    @ParametersAreNonnullByDefault
-    private static final class SystemClock extends Clock {
-
-        private final DateTimeZone _timeZone;
-
-        private SystemClock(final DateTimeZone timezone) {
-            _timeZone = timezone;
-        }
-
-        @Override
-        public DateTime now() {
-            return new DateTime(_timeZone);
-        }
-
+    @Nonnull
+    static Clock forTimezone(final DateTimeZone timezone) {
+        return () -> new DateTime(timezone);
     }
+
+    /**
+     * create a deadline for the given end time stamp
+     */
+    @Nonnull
+    default Deadline deadline(final DateTime deadline) {
+        return new Deadline(this, deadline);
+    }
+
+    /**
+     * create a deadline for a specific duration
+     */
+    @Nonnull
+    default Deadline deadline(final ReadableDuration duration) {
+        return deadline(now().plus(duration));
+    }
+
+    /**
+     * create a deadline for the given timeout
+     */
+    @Nonnull
+    default Deadline deadline(final long timeoutMs) {
+        return deadline(now().plus(timeoutMs));
+    }
+
+    /**
+     * create a deadline for the given timeout
+     */
+    @Nonnull
+    default Deadline deadline(final long timeout, final TimeUnit unit) {
+        return deadline(unit.toMillis(timeout));
+    }
+
 }

@@ -22,6 +22,7 @@ subprojects {
         testCompile('org.testng:testng:6.9.9') {
             exclude group: 'junit'
         }
+        testCompile project(':just-java-test-toolbox')
     }
 
     tasks.withType(Test) {

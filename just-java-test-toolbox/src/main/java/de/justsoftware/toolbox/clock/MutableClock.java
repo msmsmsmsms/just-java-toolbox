@@ -5,19 +5,20 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.joda.time.DateTime;
 import org.joda.time.MutableDateTime;
-import org.joda.time.Period;
+import org.joda.time.ReadableDuration;
+import org.joda.time.ReadablePeriod;
 
 /**
- * Mutable clock implementation for testing purpose.
+ * Mutable clock implementation for testing purpose. This class is not final to be able to create a spy on it.
  * 
  * @author Christian Ewers <christian.ewers@juststoftwareag.com> (initial creation)
  */
 @ParametersAreNonnullByDefault
-public final class MutableClock extends Clock {
+public class MutableClock implements Clock {
 
     private MutableDateTime _now = new MutableDateTime();
 
-    private MutableClock() {
+    public MutableClock() {
     }
 
     @Override
@@ -27,12 +28,27 @@ public final class MutableClock extends Clock {
             : new DateTime();
     }
 
+    @Nonnull
+    public final MutableClock plusMillis(final long millis) {
+        getOrCreateNow().add(millis);
+        return this;
+    }
+
     /**
      * Adds the given Period to the time presented by this clock.
      */
     @Nonnull
-    public MutableClock plus(final Period period) {
+    public final MutableClock plus(final ReadablePeriod period) {
         getOrCreateNow().add(period);
+        return this;
+    }
+
+    /**
+     * Adds the given Duration to the time presented by this clock.
+     */
+    @Nonnull
+    public final MutableClock plus(final ReadableDuration duration) {
+        getOrCreateNow().add(duration);
         return this;
     }
 
@@ -40,7 +56,7 @@ public final class MutableClock extends Clock {
      * Adds the given number of seconds to this clock.
      */
     @Nonnull
-    public MutableClock plusSeconds(final int seconds) {
+    public final MutableClock plusSeconds(final int seconds) {
         getOrCreateNow().addSeconds(seconds);
         return this;
     }
@@ -49,7 +65,7 @@ public final class MutableClock extends Clock {
      * Adds the given number of minutes to this clock.
      */
     @Nonnull
-    public MutableClock plusMinutes(final int minutes) {
+    public final MutableClock plusMinutes(final int minutes) {
         getOrCreateNow().addMinutes(minutes);
         return this;
     }
@@ -58,7 +74,7 @@ public final class MutableClock extends Clock {
      * Adds the given number of days to this clock.
      */
     @Nonnull
-    public MutableClock plusDays(final int days) {
+    public final MutableClock plusDays(final int days) {
         getOrCreateNow().addDays(days);
         return this;
     }
@@ -67,7 +83,7 @@ public final class MutableClock extends Clock {
      * Adds the given number of months to this clock.
      */
     @Nonnull
-    public MutableClock plusMonths(final int months) {
+    public final MutableClock plusMonths(final int months) {
         getOrCreateNow().addMonths(months);
         return this;
     }
@@ -76,7 +92,7 @@ public final class MutableClock extends Clock {
      * Adds the given number of years to this clock.
      */
     @Nonnull
-    public MutableClock plusYears(final int years) {
+    public final MutableClock plusYears(final int years) {
         getOrCreateNow().addYears(years);
         return this;
     }
@@ -85,7 +101,7 @@ public final class MutableClock extends Clock {
      * move clock to a certain time
      */
     @Nonnull
-    public MutableClock setTime(final DateTime otherNow) {
+    public final MutableClock setTime(final DateTime otherNow) {
         _now = otherNow.toMutableDateTime();
         return this;
     }
@@ -94,7 +110,7 @@ public final class MutableClock extends Clock {
      * Resets the clock to the actual system time.
      */
     @Nonnull
-    public MutableClock reset() {
+    public final MutableClock reset() {
         _now = null;
         return this;
     }
@@ -111,7 +127,7 @@ public final class MutableClock extends Clock {
      * stop the clock at the current time
      */
     @Nonnull
-    public MutableClock stop() {
+    public final MutableClock stop() {
         getOrCreateNow();
         return this;
     }
