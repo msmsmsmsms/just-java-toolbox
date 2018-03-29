@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * A wrapper around a {@link DateTime} (the deadlines timestamp) and its clock which can be used to track remaining time of
  * multiple timeout based operations.
@@ -96,6 +98,15 @@ public class Deadline {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects
+                .toStringHelper(this)
+                .add("end", _end)
+                .add("remainingMillis", remainingMillis())
+                .toString();
     }
 
 }
