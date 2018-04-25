@@ -1,0 +1,7 @@
+description 'Just Performance Toolbox - common tools and utilities for performance analysis'
+
+dependencies {
+    compile project(':just-java-toolbox')
+    compile('org.aspectj:aspectjweaver:1.9.1')
+    compile('org.slf4j:slf4j-api:1.7.25')
+}
