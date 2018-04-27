@@ -65,17 +65,16 @@ public class Calculator {
                     final K key = Iterables.getOnlyElement(inputs);
                     call(key, r -> consumer.accept(Collections.singletonMap(key, r)));
                     return;
-                default:
-                    final Map<K, V> result = new HashMap<>();
-                    for (final K k : inputs) {
-                        call(k, r -> {
-                            result.put(k, r);
-                            if (inputs.equals(result.keySet())) {
-                                consumer.accept(Collections.unmodifiableMap(result));
-                            }
-                        });
+            }
+            final Map<K, V> result = new HashMap<>();
+            for (final K k : inputs) {
+                call(k, r -> {
+                    result.put(k, r);
+                    if (inputs.equals(result.keySet())) {
+                        consumer.accept(Collections.unmodifiableMap(result));
                     }
-                    return;
+                });
+
             }
         }
 
