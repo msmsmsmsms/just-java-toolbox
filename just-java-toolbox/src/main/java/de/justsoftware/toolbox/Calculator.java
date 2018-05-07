@@ -51,7 +51,7 @@ public class Calculator {
         /**
          * get a result for a single key
          */
-        void call(@Nullable final K input, final Consumer<V> consumer);
+        void call(@Nullable final K input, final Consumer<? super V> consumer);
 
         /**
          * get results for multiple keys
@@ -123,14 +123,14 @@ public class Calculator {
 
         private final Function<? super Set<K>, Function<K, V>> _delegate;
         private final Map<Optional<K>, Optional<V>> _knownResults = new HashMap<>();
-        private ImmutableListMultimap.Builder<Optional<K>, Consumer<V>> _missing = ImmutableListMultimap.builder();
+        private ImmutableListMultimap.Builder<Optional<K>, Consumer<? super V>> _missing = ImmutableListMultimap.builder();
 
         private RegisteredOperation(final Function<? super Set<K>, Function<K, V>> delegate) {
             _delegate = delegate;
         }
 
         @Override
-        public void call(final K input, final Consumer<V> consumer) {
+        public void call(final K input, final Consumer<? super V> consumer) {
             final Optional<K> k = Optional.fromNullable(input);
             final Optional<V> r = _knownResults.get(k);
             if (r != null) {
@@ -141,7 +141,7 @@ public class Calculator {
         }
 
         public boolean loadMissing() {
-            final ImmutableListMultimap<Optional<K>, Consumer<V>> missing = _missing.build();
+            final ImmutableListMultimap<Optional<K>, Consumer<? super V>> missing = _missing.build();
             if (missing.isEmpty()) {
                 return false;
             }
@@ -152,7 +152,7 @@ public class Calculator {
 
             missing.keySet().forEach(k -> _knownResults.put(k, Optional.fromNullable(result.apply(k.orNull()))));
 
-            for (final Entry<Optional<K>, Collection<Consumer<V>>> e : missing.asMap().entrySet()) {
+            for (final Entry<Optional<K>, Collection<Consumer<? super V>>> e : missing.asMap().entrySet()) {
                 final Optional<V> m = _knownResults.get(e.getKey());
                 e.getValue().forEach(c -> c.accept(m.orNull()));
             }
