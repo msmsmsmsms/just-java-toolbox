@@ -1,0 +1,10 @@
+description 'Just Kafka Client Toolbox - common tools and utilities for kafka clients'
+
+dependencies {
+  compile ('org.apache.kafka:kafka-clients:0.11.0.1')
+  compile ('com.google.guava:guava:23.2-jre')
+  compile ('com.google.code.findbugs:annotations:3.0.1')
+  
+  testCompile ('junit:junit:4.12')
+  testCompile ('pl.pragmatists:JUnitParams:1.1.0')
+}
