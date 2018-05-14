@@ -56,7 +56,7 @@ public class Calculator {
         /**
          * get results for multiple keys
          */
-        default void call(final Set<K> inputs, final Consumer<Map<K, V>> consumer) {
+        default void call(final Set<K> inputs, final Consumer<? super Map<K, V>> consumer) {
             switch (inputs.size()) {
                 case 0:
                     consumer.accept(Collections.emptyMap());
