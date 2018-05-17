@@ -25,6 +25,10 @@ subprojects {
         testCompile project(':just-java-test-toolbox')
     }
 
+    compileJava {
+        options.compilerArgs += ['-Xlint:unchecked']
+    }
+
     tasks.withType(Test) {
         useTestNG()
     }

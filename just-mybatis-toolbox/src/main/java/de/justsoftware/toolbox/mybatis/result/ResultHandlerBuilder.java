@@ -36,14 +36,19 @@ public final class ResultHandlerBuilder<ID> {
 
     /**
      * return a function which extracts a property from a map
-     * 
+     *
      * @param property
      *            name of the field
      */
+    @Nonnull
     public static <T> Function<Map<String, Object>, T> property(final String property) {
-        return input -> input != null
-            ? (T) input.get(property)
-            : null;
+        return input -> {
+            @SuppressWarnings("unchecked")
+            final T result = input != null
+                ? (T) input.get(property)
+                : null;
+            return result;
+        };
     }
 
     /**
