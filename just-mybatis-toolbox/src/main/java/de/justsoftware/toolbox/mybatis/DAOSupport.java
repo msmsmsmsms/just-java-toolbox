@@ -16,6 +16,14 @@ import de.justsoftware.toolbox.mybatis.result.ResultHandlerBuilder;
  */
 @ParametersAreNonnullByDefault
 public interface DAOSupport {
+    
+    int ORACLE_SAVE_PARTITION_SIZE = 900;
+    int POSTGRES_SAVE_PARTITION_SIZE = 10_000;
+
+    /**
+     * Returns the default partition size used to for partitioning data sets.
+     */
+    int defaultPartitionSize();
 
     /**
      * use this method to build a partition query/insert/update or delete in the following form:

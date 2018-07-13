@@ -21,22 +21,20 @@ import de.justsoftware.toolbox.mybatis.SupportedJdbcDriver;
 @ParametersAreNonnullByDefault
 public class DAOSupportImpl implements DAOSupport, InternalDAOSupport {
 
-    private static final int ORACLE_PARTITION_SIZE = 900;
-    private static final int POSTGRES_PARTITION_SIZE = 10000;
-
     private final Supplier<SupportedJdbcDriver> _jdbcDriverSupplier;
 
     public DAOSupportImpl(final Supplier<SupportedJdbcDriver> jdbcDriverSupplier) {
         _jdbcDriverSupplier = jdbcDriverSupplier;
     }
 
-    private int defaultPartitionSize() {
+    @Override
+    public int defaultPartitionSize() {
         final SupportedJdbcDriver driver = _jdbcDriverSupplier.get();
         switch (driver) {
             case ORACLE:
-                return ORACLE_PARTITION_SIZE;
+                return ORACLE_SAVE_PARTITION_SIZE;
             case POSTGRES:
-                return POSTGRES_PARTITION_SIZE;
+                return POSTGRES_SAVE_PARTITION_SIZE;
         }
         throw new UnsupportedOperationException("no behavior for " + driver + " defined");
     }
