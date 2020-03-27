@@ -1,0 +1,28 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Test with Java ${{ matrix.java_version }}.
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java_version: ['11', '13']
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # Make sure jgitver finds all the information it needs.
+        fetch-depth: 0
+    - name: Set up JDK ${{ matrix.java_version }}
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{ matrix.java_version }}
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew test
