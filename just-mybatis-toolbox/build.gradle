@@ -1,7 +1,7 @@
 description 'Just Java Mybatis Toolbox - common mybatis tools and utilities missing in mybatis library'
 
 dependencies {
-    compile('org.mybatis:mybatis:3.4.6')
+    compile('org.mybatis:mybatis:3.5.4')
     compile project(':just-java-toolbox')
 
     testCompile project(':just-java-test-toolbox')

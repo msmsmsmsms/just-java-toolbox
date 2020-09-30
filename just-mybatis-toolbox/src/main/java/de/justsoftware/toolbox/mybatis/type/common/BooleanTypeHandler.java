@@ -43,22 +43,22 @@ public class BooleanTypeHandler extends AbstractDriverSpecificTypeHandler<Boolea
 
     @Override
     protected Boolean getNullableResultPostgres(final ResultSet rs, final String columnName) throws SQLException {
-        return getNullableResultPostgres(rs.getBoolean(columnName));
+        return getNullableResultPostgres(rs.getBoolean(columnName), rs.wasNull());
     }
 
     @Nonnull
-    private static Boolean getNullableResultPostgres(final boolean v) {
-        return Boolean.valueOf(v);
+    private static Boolean getNullableResultPostgres(final boolean value, final boolean wasNull) {
+        return Boolean.valueOf(value);
     }
 
     @Override
     protected Boolean getNullableResultPostgres(final ResultSet rs, final int columnIndex) throws SQLException {
-        return getNullableResultPostgres(rs.getBoolean(columnIndex));
+        return getNullableResultPostgres(rs.getBoolean(columnIndex), rs.wasNull());
     }
 
     @Override
     protected Boolean getNullableResultPostgres(final CallableStatement cs, final int columnIndex) throws SQLException {
-        return getNullableResultPostgres(cs.getBoolean(columnIndex));
+        return getNullableResultPostgres(cs.getBoolean(columnIndex), cs.wasNull());
     }
 
     @Override

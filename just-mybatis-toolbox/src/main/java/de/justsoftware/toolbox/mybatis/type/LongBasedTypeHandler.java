@@ -40,17 +40,28 @@ public class LongBasedTypeHandler<ID> extends BaseTypeHandler<ID> {
 
     @Override
     public ID getNullableResult(final ResultSet rs, final String columnName) throws SQLException {
-        return _fromLong.apply(rs.getLong(columnName));
+        return getNullableResult(rs.getLong(columnName), rs.wasNull());
     }
 
     @Override
     public ID getNullableResult(final ResultSet rs, final int columnIndex) throws SQLException {
-        return _fromLong.apply(rs.getLong(columnIndex));
+        return getNullableResult(rs.getLong(columnIndex), rs.wasNull());
     }
 
     @Override
     public ID getNullableResult(final CallableStatement cs, final int columnIndex) throws SQLException {
-        return _fromLong.apply(cs.getLong(columnIndex));
+        return getNullableResult(cs.getLong(columnIndex), cs.wasNull());
     }
+
+    /**
+     * As we use {@link ResultSet#getLong} and {@link CallableStatement#getLong} we retrieve 0 if the
+     * value in DB was null. Therefore {@link ResultSet#wasNull()} and {@link CallableStatement#wasNull()} have to be
+     * used to determine a null value.
+     * @param value the value retrieved by  {@link ResultSet#getLong} or {@link CallableStatement#getLong}
+     * @param wasNull the value retrieved by {@link ResultSet#wasNull()} or {@link CallableStatement#wasNull()}
+     */
+   private ID getNullableResult(long value, boolean wasNull) {
+        return wasNull ? null : _fromLong.apply(value);
+   }
 
 }
