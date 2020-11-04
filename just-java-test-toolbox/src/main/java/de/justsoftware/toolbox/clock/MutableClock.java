@@ -8,11 +8,16 @@ import org.joda.time.MutableDateTime;
 import org.joda.time.ReadableDuration;
 import org.joda.time.ReadablePeriod;
 
+import java.time.Duration;
+
 /**
  * Mutable clock implementation for testing purpose. This class is not final to be able to create a spy on it.
  * 
+ * @deprecated Use {@link java.time.Clock}, especially {@link java.time.Clock#offset(java.time.Clock, Duration)}.
+ * 
  * @author Christian Ewers <christian.ewers@juststoftwareag.com> (initial creation)
  */
+@Deprecated
 @ParametersAreNonnullByDefault
 public class MutableClock implements Clock {
 

@@ -13,11 +13,14 @@ import org.joda.time.ReadableDuration;
 /**
  * Interface for providing the current time to the application.
  * For production, an immutable implementation must be used. In Tests a mutable clock can be used to simulate time periods.
+ *
+ * @deprecated Use {@link java.time.Clock} instead.
  * 
  * @author Christian Ewers <christian.ewers@juststoftwareag.com> (initial creation)
  */
 @FunctionalInterface
 @ParametersAreNonnullByDefault
+@Deprecated
 public interface Clock {
 
     /**
@@ -65,38 +68,6 @@ public interface Clock {
     @Nonnull
     static Clock forTimezone(final DateTimeZone timezone) {
         return () -> new DateTime(timezone);
-    }
-
-    /**
-     * create a deadline for the given end time stamp
-     */
-    @Nonnull
-    default Deadline deadline(final DateTime deadline) {
-        return new Deadline(this, deadline);
-    }
-
-    /**
-     * create a deadline for a specific duration
-     */
-    @Nonnull
-    default Deadline deadline(final ReadableDuration duration) {
-        return deadline(now().plus(duration));
-    }
-
-    /**
-     * create a deadline for the given timeout
-     */
-    @Nonnull
-    default Deadline deadline(final long timeoutMs) {
-        return deadline(now().plus(timeoutMs));
-    }
-
-    /**
-     * create a deadline for the given timeout
-     */
-    @Nonnull
-    default Deadline deadline(final long timeout, final TimeUnit unit) {
-        return deadline(unit.toMillis(timeout));
     }
 
 }

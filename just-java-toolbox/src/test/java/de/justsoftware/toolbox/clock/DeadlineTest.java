@@ -10,92 +10,77 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.function.Supplier;
 
-import org.joda.time.Duration;
 import org.testng.annotations.Test;
 
 @Test
 public class DeadlineTest {
 
+    public static final Clock FIXED_CLOCK = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+
     public void testCreateWithMillis() {
-        assertEquals(new MutableClock().deadline(10000).remainingMillis(), 10000);
-    }
-
-    public void testCreateWithTimeUnit() {
-        assertEquals(new MutableClock().deadline(3, TimeUnit.SECONDS).remainingMillis(), 3000);
-    }
-
-    public void testCreateWithDuration() {
-        assertEquals(new MutableClock().deadline(new Duration(1234)).remainingMillis(), 1234);
+        final Deadline deadline = new Deadline(FIXED_CLOCK, Duration.ofMillis(10_000));
+        assertEquals(deadline.remainingMillis(), 10_000);
+        assertEquals(deadline.remaining(), Duration.ofMillis(10_000));
     }
 
     public void isTimeLeftShouldReturnTrueIfTimeoutIsPositive() {
-        assertTrue(new MutableClock().deadline(1000).isTimeLeft());
+        assertTrue(new Deadline(FIXED_CLOCK, Duration.ofMillis(1_000)).isTimeLeft());
     }
 
     public void isTimeLeftShouldReturnFalseIfTimeoutIsZero() {
-        assertFalse(new MutableClock().deadline(0).isTimeLeft());
+        assertFalse(new Deadline(FIXED_CLOCK, Duration.ofMillis(0)).isTimeLeft());
     }
 
     public void isTimeLeftShouldReturnTrueIfTimeoutIsNegative() {
-        assertFalse(new MutableClock().deadline(-1).isTimeLeft());
-    }
-
-    public void remainingMillisShouldReturnInitialTimeout() {
-        assertEquals(new MutableClock().deadline(1000).remainingMillis(), 1000);
+        assertFalse(new Deadline(FIXED_CLOCK, Duration.ofMillis(-1)).isTimeLeft());
     }
 
     public void remainingMillisShouldHonorElapsedTime() {
-        final MutableClock clock = new MutableClock();
-
-        final Deadline deadline = clock.deadline(1000);
-
-        clock.plusMillis(500);
-
-        assertEquals(deadline.remainingMillis(), 500);
+        final Clock offset = Clock.offset(FIXED_CLOCK, Duration.ofMillis(500));
+        final Deadline deadline = new Deadline(FIXED_CLOCK, Duration.ofMillis(1_000));
+        assertEquals(deadline.remainingMillis(offset), 500);
     }
 
     public void remainingShouldHonorElapsedTime() {
-        final MutableClock clock = new MutableClock();
-
-        final Deadline deadline = clock.deadline(1000);
-
-        clock.plusMillis(500);
-
-        assertEquals(deadline.remaining(), new Duration(500));
+        final Clock offset = Clock.offset(FIXED_CLOCK, Duration.ofMillis(500));
+        final Deadline deadline = new Deadline(FIXED_CLOCK, Duration.ofMillis(1_000));
+        assertEquals(deadline.remaining(offset), Duration.ofMillis(500));
     }
 
-    public void awaitShouldBeCalledWithInitialTime() throws InterruptedException {
+    public void awaitShouldBeCalledWithTimeRemaining() throws InterruptedException {
         final Condition condition = mock(Condition.class);
         when(condition.await(anyLong(), any())).thenReturn(true);
 
-        assertTrue(new MutableClock().deadline(1000).await(condition));
+        assertTrue(new Deadline(FIXED_CLOCK, Duration.ofMillis(100)).await(condition));
 
-        verify(condition).await(1000, TimeUnit.MILLISECONDS);
+        verify(condition).await(100, TimeUnit.MILLISECONDS);
     }
 
     public void awaitShouldBeCalledWithRemainingTime() throws InterruptedException {
         final Condition condition = mock(Condition.class);
         when(condition.await(anyLong(), any())).thenReturn(true);
 
-        final MutableClock clock = new MutableClock();
+        final Deadline deadline = new Deadline(FIXED_CLOCK, Duration.ofMillis(100));
 
-        final Deadline deadline = clock.deadline(1000);
+        assertTrue(deadline.await(Clock.offset(FIXED_CLOCK, Duration.ofMillis(50)), () -> condition));
 
-        clock.plusMillis(500);
-
-        assertTrue(deadline.await(condition));
-
-        verify(condition).await(500, TimeUnit.MILLISECONDS);
+        verify(condition).await(50, TimeUnit.MILLISECONDS);
     }
 
     public void awaitShouldNotBeCalledWhenTimeIsUp() throws InterruptedException {
         final Condition condition = mock(Condition.class);
 
-        assertFalse(new MutableClock().deadline(-1).await(condition));
+        assertFalse(new Deadline(FIXED_CLOCK, Duration.ofMillis(-1)).await(condition));
 
         verifyZeroInteractions(condition);
     }
@@ -104,18 +89,9 @@ public class DeadlineTest {
         @SuppressWarnings("unchecked")
         final Supplier<Condition> conditionSupplier = mock(Supplier.class);
 
-        assertFalse(new MutableClock().deadline(-1).await(conditionSupplier));
+        assertFalse(new Deadline(FIXED_CLOCK, Duration.ofMillis(-1)).await(FIXED_CLOCK, conditionSupplier));
 
         verifyZeroInteractions(conditionSupplier);
-    }
-
-    public void awaitShouldCallSupplierWithInitialTime() throws InterruptedException {
-        final Condition condition = mock(Condition.class);
-        when(condition.await(anyLong(), any())).thenReturn(true);
-
-        assertTrue(new MutableClock().deadline(1000).await(() -> condition));
-
-        verify(condition).await(1000, TimeUnit.MILLISECONDS);
     }
 
 }

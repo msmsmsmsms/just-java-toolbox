@@ -1,5 +1,12 @@
 package de.justsoftware.toolbox.clock;
 
+import com.google.common.base.MoreObjects;
+
+import javax.annotation.Nonnull;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -10,59 +17,57 @@ import java.util.function.LongConsumer;
 import java.util.function.LongFunction;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-
-import com.google.common.base.MoreObjects;
-
 /**
- * A wrapper around a {@link DateTime} (the deadlines timestamp) and its clock which can be used to track remaining time of
- * multiple timeout based operations.
+ * A wrapper around an {@link Instant} and a clock which can be used to track remaining time until the instant is reached.
+ * Supports multiple timeout based operations.
  */
 public class Deadline {
 
     private final Clock _clock;
-    private final DateTime _end;
+    private final Instant _end;
 
-    Deadline(final Clock clock, final DateTime end) {
+    public Deadline(final Clock clock, final Duration durationFromNow) {
         _clock = clock;
-        _end = end;
+        _end = Instant.now(clock).plus(durationFromNow);
     }
 
     public boolean isTimeLeft() {
-        return _end.isAfter(_clock.now());
+        return _end.isAfter(_clock.instant());
     }
 
     @Nonnull
     public Duration remaining() {
-        return new Duration(_clock.now(), _end);
+        return remaining(_clock);
+    }
+
+    public Duration remaining(final Clock clock) {
+        return Duration.between(clock.instant(), _end);
     }
 
     public long remainingMillis() {
-        return _end.getMillis() - _clock.nowMillis();
+        return remainingMillis(_clock);
+    }
+    
+    public long remainingMillis(Clock clock) {
+        return clock.instant().until(_end, ChronoUnit.MILLIS);
     }
 
-    public boolean await(final Supplier<Condition> condition) throws InterruptedException {
-        final long remainingMillis = remainingMillis();
+    public boolean await(final Clock clock, final Supplier<Condition> condition) throws InterruptedException {
+        final long remainingMillis = remainingMillis(clock);
         return remainingMillis > 0 && condition.get().await(remainingMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean await(final Condition condition) throws InterruptedException {
-        return await(() -> condition);
+        return await(_clock, () -> condition);
     }
 
     /**
      * Resolves a future by calling {@link Future#get(long, TimeUnit)}.
      *
-     * @throws InterruptedException
-     *             this exception is forwarded from {@link Future#get(long, TimeUnit)}
-     * @throws ExecutionException
-     *             this exception is forwarde from {@link Future#get(long, TimeUnit)}
-     * @throws TimeoutException
-     *             this exception is forwarde from {@link Future#get(long, TimeUnit)} but also thrown if the deadline reaches
-     *             its limit
+     * @throws InterruptedException this exception is forwarded from {@link Future#get(long, TimeUnit)}
+     * @throws ExecutionException   this exception is forwarde from {@link Future#get(long, TimeUnit)}
+     * @throws TimeoutException     this exception is forwarde from {@link Future#get(long, TimeUnit)} but also thrown if the deadline reaches
+     *                              its limit
      */
     public <T> T resolveFuture(final Future<T> future) throws InterruptedException, ExecutionException, TimeoutException {
         final long remainingMillis = remainingMillis();
@@ -76,15 +81,14 @@ public class Deadline {
     /**
      * Execute the supplied function only if time left and return its result wrapped into an optional.
      *
-     * @throws NullPointerException
-     *             if function returns null
+     * @throws NullPointerException if function returns null
      */
     @Nonnull
     public <T> Optional<T> withTimeLeft(final LongFunction<T> function) {
         final long remainingMillis = remainingMillis();
         return remainingMillis > 0
-            ? Optional.of(function.apply(remainingMillis))
-            : Optional.empty();
+                ? Optional.of(function.apply(remainingMillis))
+                : Optional.empty();
     }
 
     /**
