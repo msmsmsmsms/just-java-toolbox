@@ -23,42 +23,37 @@ import java.util.function.Supplier;
  */
 public class Deadline {
 
-    private final Clock _clock;
-    private final Instant _end;
+    private final Instant _deadline;
 
-    public Deadline(final Clock clock, final Duration durationFromNow) {
-        _clock = clock;
-        _end = Instant.now(clock).plus(durationFromNow);
+    /**
+     * Create a new {@link Deadline} due at the given {@link Instant}.
+     */
+    public Deadline(final Instant deadline) {
+        _deadline = deadline;
     }
 
-    public boolean isTimeLeft() {
-        return _end.isAfter(_clock.instant());
+    /**
+     * Create a new {@link Deadline} due after the given amount of milliseconds.
+     */
+    public static Deadline inMillis(final Clock clock, final long millis) {
+        return new Deadline(clock.instant().plusMillis(millis));
     }
 
-    @Nonnull
-    public Duration remaining() {
-        return remaining(_clock);
-    }
-
-    public Duration remaining(final Clock clock) {
-        return Duration.between(clock.instant(), _end);
-    }
-
-    public long remainingMillis() {
-        return remainingMillis(_clock);
+    public boolean isTimeLeft(final Clock clock) {
+        return _deadline.isAfter(clock.instant());
     }
     
+    public Duration remaining(final Clock clock) {
+        return Duration.between(clock.instant(), _deadline);
+    }
+
     public long remainingMillis(Clock clock) {
-        return clock.instant().until(_end, ChronoUnit.MILLIS);
+        return clock.instant().until(_deadline, ChronoUnit.MILLIS);
     }
 
     public boolean await(final Clock clock, final Supplier<Condition> condition) throws InterruptedException {
         final long remainingMillis = remainingMillis(clock);
         return remainingMillis > 0 && condition.get().await(remainingMillis, TimeUnit.MILLISECONDS);
-    }
-
-    public boolean await(final Condition condition) throws InterruptedException {
-        return await(_clock, () -> condition);
     }
 
     /**
@@ -69,8 +64,8 @@ public class Deadline {
      * @throws TimeoutException     this exception is forwarde from {@link Future#get(long, TimeUnit)} but also thrown if the deadline reaches
      *                              its limit
      */
-    public <T> T resolveFuture(final Future<T> future) throws InterruptedException, ExecutionException, TimeoutException {
-        final long remainingMillis = remainingMillis();
+    public <T> T resolveFuture(final Clock clock, final Future<T> future) throws InterruptedException, ExecutionException, TimeoutException {
+        final long remainingMillis = remainingMillis(clock);
         if (remainingMillis > 0) {
             return future.get(remainingMillis, TimeUnit.MILLISECONDS);
         } else {
@@ -84,8 +79,8 @@ public class Deadline {
      * @throws NullPointerException if function returns null
      */
     @Nonnull
-    public <T> Optional<T> withTimeLeft(final LongFunction<T> function) {
-        final long remainingMillis = remainingMillis();
+    public <T> Optional<T> withTimeLeft(final Clock clock, final LongFunction<T> function) {
+        final long remainingMillis = remainingMillis(clock);
         return remainingMillis > 0
                 ? Optional.of(function.apply(remainingMillis))
                 : Optional.empty();
@@ -94,8 +89,8 @@ public class Deadline {
     /**
      * Execute the supplied consumer only if time left.
      */
-    public boolean ifTimeLeft(final LongConsumer consumer) {
-        final long remainingMillis = remainingMillis();
+    public boolean ifTimeLeft(final Clock clock, final LongConsumer consumer) {
+        final long remainingMillis = remainingMillis(clock);
         if (remainingMillis > 0) {
             consumer.accept(remainingMillis);
             return true;
@@ -108,8 +103,8 @@ public class Deadline {
     public String toString() {
         return MoreObjects
                 .toStringHelper(this)
-                .add("end", _end)
-                .add("remainingMillis", remainingMillis())
+                .add("end", _deadline)
+                .add("remainingMillis", remainingMillis(Clock.systemDefaultZone()))
                 .toString();
     }
 
