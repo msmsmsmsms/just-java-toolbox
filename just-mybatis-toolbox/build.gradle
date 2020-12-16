@@ -1,8 +1,11 @@
 description 'Just Java Mybatis Toolbox - common mybatis tools and utilities missing in mybatis library'
 
 dependencies {
-    compile('org.mybatis:mybatis:3.5.4')
-    compile project(':just-java-toolbox')
+    implementation 'org.mybatis:mybatis:3.5.4'
+    implementation 'com.google.guava:guava:23.2-jre'
+    implementation 'com.google.code.findbugs:annotations:3.0.1'
+    implementation 'joda-time:joda-time:2.9.9'
+    implementation project(':just-java-toolbox')
 
-    testCompile project(':just-java-test-toolbox')
+    testImplementation project(':just-java-test-toolbox')
 }

@@ -1,8 +1,8 @@
 description 'Just Java Toolbox - common java tools and utilities missing in other tool libraries'
 
 dependencies {
-    compile('com.google.guava:guava:23.2-jre')
-    compile('com.google.code.findbugs:annotations:3.0.1')
-    compile('joda-time:joda-time:2.9.9')
+    implementation 'com.google.guava:guava:23.2-jre'
+    implementation 'com.google.code.findbugs:annotations:3.0.1'
+    implementation 'joda-time:joda-time:2.9.9'
 }
 

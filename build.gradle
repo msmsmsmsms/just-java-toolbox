@@ -18,12 +18,12 @@ subprojects {
     group 'de.justsoftware.toolbox'
 
     dependencies {
-        testCompile 'org.mockito:mockito-core:1.10.19'
-        testCompile 'org.hamcrest:hamcrest-library:1.3'
-        testCompile('org.testng:testng:6.9.9') {
+        testImplementation 'org.mockito:mockito-core:1.10.19'
+        testImplementation 'org.hamcrest:hamcrest-library:1.3'
+        testImplementation('org.testng:testng:6.9.9') {
             exclude group: 'junit'
         }
-        testCompile project(':just-java-test-toolbox')
+        testImplementation project(':just-java-test-toolbox')
     }
 
     compileJava {

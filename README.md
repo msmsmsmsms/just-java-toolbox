@@ -7,8 +7,8 @@ common java tools and utilities missing in other tool libraries
 when you have uploaded artifacts in your repository (see [snapshot and releases](#snapshot-and-releases) if not yet done) you can use them in gradle by adding
 
     dependencies {
-        compile 'de.justsoftware.toolbox:just-java-toolbox:+'
-        testCompile 'de.justsoftware.toolbox:just-java-test-toolbox:+'
+        implementation 'de.justsoftware.toolbox:just-java-toolbox:+'
+        testImplementation 'de.justsoftware.toolbox:just-java-test-toolbox:+'
     }
 
 consider replacing + by an explicit version number
@@ -23,8 +23,8 @@ Checkout a Commit and call
 ## snapshot and releases
 If not yet done, add to your ~/.gradle/gradle.properties
 
-    jucoRepositorySnapshots=https://your.nexus.serverers/shapshot-repo
-    jucoRepositoryThirdParty=https://your.nexus.serverers/thirdparty-repo
+    jucoRepositorySnapshots=https://your.nexus.server/shapshot-repo
+    jucoRepositoryThirdParty=https://your.nexus.server/thirdparty-repo
     repositoryUser=yourUserName
     repositoryPassword=yourPassword
 

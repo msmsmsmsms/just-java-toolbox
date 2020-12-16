@@ -1,7 +1,10 @@
 description 'Just Performance Toolbox - common tools and utilities for performance analysis'
 
 dependencies {
-    compile project(':just-java-toolbox')
-    compile('org.aspectj:aspectjweaver:1.9.1')
-    compile('org.slf4j:slf4j-api:1.7.25')
+    implementation project(':just-java-toolbox')
+    implementation 'org.aspectj:aspectjweaver:1.9.1'
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'joda-time:joda-time:2.9.9'
+    implementation 'com.google.guava:guava:23.2-jre'
+    implementation 'com.google.code.findbugs:annotations:3.0.1'
 }
