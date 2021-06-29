@@ -9,7 +9,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.mockito.internal.util.MockUtil;
+import static org.mockito.Mockito.mockingDetails;
 
 import com.google.common.collect.FluentIterable;
 
@@ -128,7 +128,7 @@ public final class Mocks<S> {
 
             final Object[] mocks = FluentIterable
                     .from(initParams)
-                    .filter(new MockUtil()::isMock)
+                    .filter(obj -> mockingDetails(obj).isMock())
                     .toArray(Object.class);
 
             @SuppressWarnings("unchecked")
