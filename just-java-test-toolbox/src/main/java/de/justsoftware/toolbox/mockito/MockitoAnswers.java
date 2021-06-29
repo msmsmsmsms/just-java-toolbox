@@ -52,7 +52,7 @@ public enum MockitoAnswers implements Answer<Object> {
     @Nonnull
     private static <K> ImmutableSet<K> argumentAsSet(final InvocationOnMock invocation) {
         @SuppressWarnings("unchecked")
-        final Iterable<K> keys = invocation.getArgumentAt(0, Iterable.class);
+        final Iterable<K> keys = invocation.getArgument(0);
         // keys is null when Mockito.any() is passed as argument
         if (keys == null) {
             return ImmutableSet.of();
@@ -63,7 +63,7 @@ public enum MockitoAnswers implements Answer<Object> {
     @Nonnull
     private static <K, V> ImmutableSetMultimap<K, V> argAsMultimap(final InvocationOnMock invocation) {
         @SuppressWarnings("unchecked")
-        final Multimap<K, V> keys = invocation.getArgumentAt(0, Multimap.class);
+        final Multimap<K, V> keys = invocation.getArgument(0);
         // keys is null when Mockito.any() is passed as argument
         if (keys == null) {
             return ImmutableSetMultimap.of();
