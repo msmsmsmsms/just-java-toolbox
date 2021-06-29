@@ -1,10 +1,10 @@
 description 'Just Java Test Toolbox - common java test tools and utilities missing in other tool libraries'
 
 dependencies {
-    implementation 'com.google.guava:guava:23.2-jre'
-    implementation 'joda-time:joda-time:2.9.9'
-    implementation 'org.mockito:mockito-core:3.11.2'
-    implementation 'org.hamcrest:hamcrest:2.2'
+    api 'com.google.guava:guava:23.2-jre'
+    api 'joda-time:joda-time:2.9.9'
+    api 'org.mockito:mockito-core:3.11.2'
+    api 'org.hamcrest:hamcrest:2.2'
 
     implementation project(':just-java-toolbox')
 }
